@@ -16,7 +16,7 @@ GSMenu::~GSMenu()
 void GSMenu::Init()
 {
 	auto model = ResourceManagers::GetInstance()->GetModel("Sprite2D.nfg");
-	auto texture = ResourceManagers::GetInstance()->GetTexture("bg_main_menu.tga");
+	auto texture = ResourceManagers::GetInstance()->GetTexture("Background 2.tga");
 
 	// background
 	auto shader = ResourceManagers::GetInstance()->GetShader("TextureShader");
@@ -34,6 +34,16 @@ void GSMenu::Init()
 		});
 	m_listButton.push_back(button);
 
+	//credit button
+	texture = ResourceManagers::GetInstance()->GetTexture("ButtonCredit1.tga");
+	button = std::make_shared<GameButton>(model, shader, texture);	
+	button->Set2DPosition(Globals::screenWidth / 2, Globals::screenHeight / 1.25);
+	button->SetSize(160, 100);
+	button->SetOnClick([]() {
+		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_CREDIT);
+		});
+	m_listButton.push_back(button);
+
 	// exit button
 	texture = ResourceManagers::GetInstance()->GetTexture("btn_close.tga");
 	button = std::make_shared<GameButton>(model, shader, texture);
@@ -47,8 +57,8 @@ void GSMenu::Init()
 	// game title
 	shader = ResourceManagers::GetInstance()->GetShader("TextShader");
 	std::shared_ptr<Font> font = ResourceManagers::GetInstance()->GetFont("Brightly Crush Shine.otf");
-	m_textGameName = std::make_shared< Text>(shader, font, "Epic Game", Vector4(1.0f, 0.5f, 0.0f, 1.0f), 3.0f);
-	m_textGameName->Set2DPosition(Vector2(60, 200));
+	m_textGameName = std::make_shared< Text>(shader, font, "2048", Vector4(1.0f, 0.5f, 0.0f, 1.0f), 3.0f);
+	m_textGameName->Set2DPosition(Vector2(210, 200));
 }
 
 void GSMenu::Exit()
