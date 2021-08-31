@@ -9,6 +9,9 @@
 #include "Sprite3D.h"
 #include "Text.h"
 #include "GameButton.h"
+#include <SFML/Graphics.hpp>
+#include "Game.h"
+
 
 GSPlay::GSPlay()
 {
@@ -23,7 +26,7 @@ GSPlay::~GSPlay()
 void GSPlay::Init()
 {
 	auto model = ResourceManagers::GetInstance()->GetModel("Sprite2D.nfg");
-	auto texture = ResourceManagers::GetInstance()->GetTexture("play.tga");
+	auto texture = ResourceManagers::GetInstance()->GetTexture("Background 2.tga");
 
 	// background
 	auto shader = ResourceManagers::GetInstance()->GetShader("TextureShader");
@@ -31,7 +34,7 @@ void GSPlay::Init()
 	m_background->Set2DPosition((float)Globals::screenWidth / 2, (float)Globals::screenHeight / 2);
 	m_background->SetSize(Globals::screenWidth, Globals::screenHeight);
 
-	// button clode
+	// button close
 	texture = ResourceManagers::GetInstance()->GetTexture("btn_close.tga");
 	std::shared_ptr<GameButton>  button = std::make_shared<GameButton>(model, shader, texture);
 	button->Set2DPosition(Globals::screenWidth - 50, 50);
@@ -46,6 +49,32 @@ void GSPlay::Init()
 	std::shared_ptr<Font> font = ResourceManagers::GetInstance()->GetFont("Brightly Crush Shine.otf");
 	m_score = std::make_shared< Text>(shader, font, "score: 10", TextColor::RED, 1.0);
 	m_score->Set2DPosition(Vector2(5, 25));
+
+	//game
+		
+	srand(time(NULL));
+
+	m_renderWindow.create(sf::VideoMode(600, 600), "2048", sf::Style::Titlebar | sf::Style::Close);
+	sf::Event e;
+
+	m_renderWindow.setKeyRepeatEnabled(false);
+
+	Game game(m_renderWindow.getSize().x, m_renderWindow.getSize().y);
+
+	while (m_renderWindow.isOpen()) {
+		while (m_renderWindow.pollEvent(e)) {
+			if (e.type == sf::Event::Closed)
+				m_renderWindow.close();
+			game.OnEvent(e);
+		}
+
+		game.Update();
+
+		m_renderWindow.clear(sf::Color(187, 173, 160));
+		game.Render(m_renderWindow);
+		m_renderWindow.display();
+	}
+
 }
 
 void GSPlay::Exit()
