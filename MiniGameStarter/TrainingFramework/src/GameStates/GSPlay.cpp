@@ -26,7 +26,7 @@ GSPlay::~GSPlay()
 void GSPlay::Init()
 {
 	auto model = ResourceManagers::GetInstance()->GetModel("Sprite2D.nfg");
-	auto texture = ResourceManagers::GetInstance()->GetTexture("Background 2.tga");
+	auto texture = ResourceManagers::GetInstance()->GetTexture("play.tga");
 
 	// background
 	auto shader = ResourceManagers::GetInstance()->GetShader("TextureShader");
@@ -52,7 +52,7 @@ void GSPlay::Init()
 
 	//game
 		
-	srand(time(NULL));
+	/*srand(time(NULL));
 
 	m_renderWindow.create(sf::VideoMode(600, 600), "2048", sf::Style::Titlebar | sf::Style::Close);
 	sf::Event e;
@@ -73,7 +73,7 @@ void GSPlay::Init()
 		m_renderWindow.clear(sf::Color(187, 173, 160));
 		game.Render(m_renderWindow);
 		m_renderWindow.display();
-	}
+	}*/
 
 }
 
