@@ -24,25 +24,29 @@ void GSCredit::Init()
 	m_background->SetSize(Globals::screenWidth, Globals::screenHeight);
 
 	// back button
-	texture = ResourceManagers::GetInstance()->GetTexture("btn_back.tga");
+	texture = ResourceManagers::GetInstance()->GetTexture("Menu_back.tga");
 	m_backButton = std::make_shared<GameButton>(model, shader, texture);
 	m_backButton->Set2DPosition(Globals::screenWidth / 10, Globals::screenHeight / 15);
-	m_backButton->SetSize(66, 54);
+	m_backButton->SetSize(60, 60);
 	m_backButton->SetOnClick([]() {
 		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_MENU);
 		});
 
-	// game title
+	// title
 	shader = ResourceManagers::GetInstance()->GetShader("TextShader");
 	std::shared_ptr<Font> font = ResourceManagers::GetInstance()->GetFont("arialbd.ttf");
-	std::shared_ptr<Text> text = std::make_shared< Text>(shader, font, "Credits", TextColor::BLACK, 2, TextAlign::CENTER);
-	text->Set2DPosition(Vector2(GLfloat(Globals::screenWidth / 2 - 80), Globals::screenHeight / 12));
+	std::shared_ptr<Text> text = std::make_shared< Text>(shader, font, "Credits", TextColor::BLACK, 1.5, TextAlign::CENTER);
+	text->Set2DPosition(Vector2(GLfloat(Globals::screenWidth / 2 - 65), Globals::screenHeight / 12));
 	m_listText.push_back(text);
 
-	// game title
-	text = std::make_shared< Text>(shader, font, "Developed by Tran Quoc Nam D17 PTIT", TextColor::BLACK, 1.25, TextAlign::CENTER);
+	// text
+	text = std::make_shared< Text>(shader, font, "Developed by Tran Quoc Nam - D17 PTIT", TextColor::BLACK, 1.14, TextAlign::CENTER);
 	text->Set2DPosition(Vector2(5, 200));
 	m_listText.push_back(text);
+
+	//sfx
+	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
+	sound.setBuffer(buffer);
 }
 
 void GSCredit::Exit()
@@ -71,6 +75,7 @@ void GSCredit::HandleTouchEvents(int x, int y, bool bIsPressed)
 {
 	if (m_backButton->HandleTouchEvents(x, y, bIsPressed))
 	{
+		sound.play();
 		return;
 	}
 }

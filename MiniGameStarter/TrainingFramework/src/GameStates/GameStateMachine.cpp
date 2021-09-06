@@ -84,3 +84,19 @@ void  GameStateMachine::PerformStateChange()
 
 	m_pNextState = 0;
 }
+
+void GameStateMachine::ReloadState()
+{
+	// cleanup the current state
+	if (!m_StateStack.empty()) {
+		m_StateStack.back()->Exit();
+		m_StateStack.pop_back();
+	}
+	if (!m_StateStack.empty()) {
+		StateType reloadStateType = m_StateStack.back()->GetGameStateType();
+		m_StateStack.back()->Exit();
+		m_StateStack.pop_back();
+		PushState(reloadStateType);
+		PerformStateChange();
+	}
+}

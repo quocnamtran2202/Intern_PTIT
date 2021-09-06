@@ -1,6 +1,8 @@
 #pragma once
 #include "GameStateBase.h"
 #include "GameButton.h"
+#include <SFML/Audio.hpp>
+
 
 class GSMenu :
 	public GameStateBase
@@ -26,6 +28,8 @@ private:
 	std::shared_ptr<Sprite2D>				m_background;
 	std::list<std::shared_ptr<GameButton>>	m_listButton;
 	std::shared_ptr<Text>					m_textGameName;
+	sf::Sound sound;
+	sf::SoundBuffer buffer;
 
 };
 

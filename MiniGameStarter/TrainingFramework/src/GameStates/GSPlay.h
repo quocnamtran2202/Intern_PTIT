@@ -1,6 +1,6 @@
 #pragma once
 #include "GameStateBase.h"
-#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 class Sprite2D;
 class Sprite3D;
@@ -27,10 +27,43 @@ public:
 	void	Update(float deltaTime) override;
 	void	Draw() override;
 
+	void	addTile();
+	void	reset();
+	bool	canMove();
+	void	moveUp();
+	void	moveDown();
+	void	moveLeft();
+	void	moveRight();
+	void	reset_tmp();
+	void	sumUp();
+	void	sumDown();
+	void	sumLeft();
+	void	sumRight();
+	bool	checkFull();
+	void	copyBoard();
+	bool	checkMove();
+	bool	checkGameOver();
+	void	initBoard();
+	void	exportBoard();
+	bool	checkInit();
+	void	exportScore();
+	void	toGameOver();
+
 private:
 	std::shared_ptr<Sprite2D>	m_background;
 	std::shared_ptr<Text>		m_score;
+	std::shared_ptr<Text>		m_mode;
+	std::shared_ptr<Text>		m_gameover;
 	std::list<std::shared_ptr<GameButton>>	m_listButton;
-	sf::RenderWindow m_renderWindow;
+	std::shared_ptr<Sprite2D>	tile[4][4];
+	//int map[4][4];
+	int tmp[4][4];
+	int g[4][4];
+	int g_copy[4][4];
+	sf::Music music;
+	sf::Sound sound;
+	sf::SoundBuffer buffer;
+	int score;
+	std::string s1;
 };
 

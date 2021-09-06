@@ -1,5 +1,7 @@
 #include "GSMenu.h"
 #include "Camera.h"
+#include <iostream>
+#include <fstream>
 
 GSMenu::GSMenu() : GameStateBase(StateType::STATE_MENU), 
 	m_background(nullptr), m_listButton(std::list<std::shared_ptr<GameButton>>{}), m_textGameName(nullptr)
@@ -25,30 +27,68 @@ void GSMenu::Init()
 	m_background->SetSize(Globals::screenWidth, Globals::screenHeight);
 
 	// play button
-	texture = ResourceManagers::GetInstance()->GetTexture("btn_play.tga");
+	texture = ResourceManagers::GetInstance()->GetTexture("Menu_play.tga");
 	std::shared_ptr<GameButton> button = std::make_shared<GameButton>(model, shader, texture);
 	button->Set2DPosition(Globals::screenWidth / 2, Globals::screenHeight / 2);
 	button->SetSize(200, 200);
 	button->SetOnClick([]() {
-		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_PLAY);
+		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_MODE);
 		});
 	m_listButton.push_back(button);
 
 	//credit button
-	texture = ResourceManagers::GetInstance()->GetTexture("ButtonCredit1.tga");
+	texture = ResourceManagers::GetInstance()->GetTexture("Menu_credit.tga");
 	button = std::make_shared<GameButton>(model, shader, texture);	
-	button->Set2DPosition(Globals::screenWidth / 2, Globals::screenHeight / 1.25);
-	button->SetSize(160, 100);
+	button->Set2DPosition(Globals::screenWidth / 2 + 207, Globals::screenHeight / 1.25);
+	button->SetSize(120, 120);
 	button->SetOnClick([]() {
 		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_CREDIT);
 		});
 	m_listButton.push_back(button);
 
+	//setting button
+	texture = ResourceManagers::GetInstance()->GetTexture("Menu_setting.tga");
+	button = std::make_shared<GameButton>(model, shader, texture);
+	button->Set2DPosition(Globals::screenWidth / 2 + 69, Globals::screenHeight / 1.25);
+	button->SetSize(120, 120);
+	button->SetOnClick([]() {
+		std::ofstream f;
+		f.open("Data/GSSetting.txt");
+		f << 0;
+		f.close();
+		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_SETTING);
+		});
+	m_listButton.push_back(button);
+
+	//leaderboard button
+	texture = ResourceManagers::GetInstance()->GetTexture("Menu_score.tga");
+	button = std::make_shared<GameButton>(model, shader, texture);
+	button->Set2DPosition(Globals::screenWidth / 2 - 69, Globals::screenHeight / 1.25);
+	button->SetSize(120, 120);
+	button->SetOnClick([]() {
+		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_LEADERBOARD);
+		});
+	m_listButton.push_back(button);
+
+	//help button
+	texture = ResourceManagers::GetInstance()->GetTexture("Menu_help.tga");
+	button = std::make_shared<GameButton>(model, shader, texture);
+	button->Set2DPosition(Globals::screenWidth / 2 - 207, Globals::screenHeight / 1.25);
+	button->SetSize(120, 120);
+	button->SetOnClick([]() {
+		std::ofstream f;
+		f.open("Data/GSHelp.txt");
+		f << 0;
+		f.close();
+		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_HELP);
+		});
+	m_listButton.push_back(button);
+
 	// exit button
-	texture = ResourceManagers::GetInstance()->GetTexture("btn_close.tga");
+	texture = ResourceManagers::GetInstance()->GetTexture("Menu_exit.tga");
 	button = std::make_shared<GameButton>(model, shader, texture);
 	button->Set2DPosition(Globals::screenWidth - 50, 50);
-	button->SetSize(50, 50);
+	button->SetSize(60, 60);
 	button->SetOnClick([]() {
 		exit(0);
 		});
@@ -58,7 +98,11 @@ void GSMenu::Init()
 	shader = ResourceManagers::GetInstance()->GetShader("TextShader");
 	std::shared_ptr<Font> font = ResourceManagers::GetInstance()->GetFont("Brightly Crush Shine.otf");
 	m_textGameName = std::make_shared< Text>(shader, font, "2048", Vector4(1.0f, 0.5f, 0.0f, 1.0f), 3.0f);
-	m_textGameName->Set2DPosition(Vector2(210, 200));
+	m_textGameName->Set2DPosition(Vector2(190, 200));
+
+	//sfx
+	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
+	sound.setBuffer(buffer);
 }
 
 void GSMenu::Exit()
@@ -89,6 +133,7 @@ void GSMenu::HandleTouchEvents(int x, int y, bool bIsPressed)
 	{
 		if (button->HandleTouchEvents(x, y, bIsPressed))
 		{
+			sound.play();
 			break;
 		}
 	}
