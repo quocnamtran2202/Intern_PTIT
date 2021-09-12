@@ -48,6 +48,7 @@ public:
 	bool	checkInit();
 	void	exportScore();
 	void	toGameOver();
+	void	loadSetting();
 
 private:
 	std::shared_ptr<Sprite2D>	m_background;
@@ -65,5 +66,6 @@ private:
 	sf::SoundBuffer buffer;
 	int score;
 	std::string s1;
+	int ms, sfx;
 };
 

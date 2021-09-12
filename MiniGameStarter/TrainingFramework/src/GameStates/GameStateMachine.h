@@ -20,7 +20,6 @@ enum class StateType
 	STATE_LEADERBOARD,
 	STATE_MODE,
 	STATE_PUZZLE,
-
 };
 
 class GameStateMachine : public CSingleton<GameStateMachine>

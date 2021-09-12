@@ -49,10 +49,6 @@ void GSPlay_Puzzle::Init()
 	button->Set2DPosition(Globals::screenWidth - 125, 50);
 	button->SetSize(60, 60);
 	button->SetOnClick([]() {
-		ofstream f;
-		f.open("Data/GSHelp.txt");
-		f << 3;
-		f.close();
 		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_HELP);
 		});
 	m_listButton.push_back(button);
@@ -63,10 +59,6 @@ void GSPlay_Puzzle::Init()
 	button->Set2DPosition(Globals::screenWidth - 200, 50);
 	button->SetSize(60, 60);
 	button->SetOnClick([]() {
-		ofstream f;
-		f.open("Data/GSSetting.txt");
-		f << 3;
-		f.close();
 		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_SETTING);
 		});
 	m_listButton.push_back(button);
@@ -167,22 +159,15 @@ void GSPlay_Puzzle::Init()
 	m_mode->Set2DPosition(25, 50);
 
 	//sound
-	music.openFromFile("Sound/ES_Quest for the Skies - Christoffer Moe Ditlevsen.wav");
-	music.setVolume(60);
-	music.play();
-	music.setLoop(true);
-
+	loadSetting();
 	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
 	sound.setBuffer(buffer);
 
-	// board
-	for (int i = 0;i < 4;i++) {
-		for (int j = 0;j < 4;j++) {
-			//g[i][j] = 2;
-			tmp[i][j] = 0;
-		}
-	}
+	music.openFromFile("Sound/ES_Quest for the Skies - Christoffer Moe Ditlevsen.wav");
+	music.play();
+	music.setLoop(true);
 
+	// board
 	ifstream file;
 	file.open("Data/Puzzle/Puzzle.txt");
 	file >> lv;
@@ -195,11 +180,27 @@ void GSPlay_Puzzle::Init()
 		}
 	}
 	file.close();
+
+	for (int i = 0;i < 4;i++) {
+		for (int j = 0;j < 4;j++) {
+			if (g[i][j] != -1) {
+				tmp[i][j] = 0;
+			}
+			else {
+				tmp[i][j] = 1;
+			}
+		}
+	}
 }
 void GSPlay_Puzzle::reset_tmp() {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
-			tmp[i][j] = 0;
+			if (g[i][j] != -1) {
+				tmp[i][j] = 0;
+			}
+			else {
+				tmp[i][j] = 1;
+			}
 		}
 	}
 }
@@ -210,11 +211,13 @@ void GSPlay_Puzzle::Exit()
 
 void GSPlay_Puzzle::Pause()
 {
-	music.stop();
+	music.pause();
 }
 
 void GSPlay_Puzzle::Resume()
 {
+	loadSetting();
+	music.play();
 }
 
 void GSPlay_Puzzle::HandleEvents()
@@ -226,33 +229,49 @@ void GSPlay_Puzzle::HandleKeyEvents(int key, bool bIsPressed)
 	if (bIsPressed) {
 		switch (key) {
 		case VK_DOWN: {
+			copyBoard();
 			moveDown();
 			sumDown();
 			moveDown();
+			if (checkMove() == true) {
+				sound.play();
+			}
 			reset_tmp();
 			break;
 		}
 
 		case VK_UP: {
+			copyBoard();
 			moveUp();
 			sumUp();
 			moveUp();
+			if (checkMove() == true) {
+				sound.play();
+			}
 			reset_tmp();
 			break;
 		}
 
 		case VK_LEFT: {
+			copyBoard();
 			moveLeft();
 			sumLeft();
 			moveLeft();
+			if (checkMove() == true) {
+				sound.play();
+			}
 			reset_tmp();
 			break;
 		}
 
 		case VK_RIGHT: {
+			copyBoard();
 			moveRight();
 			sumRight();
 			moveRight();
+			if (checkMove() == true) {
+				sound.play();
+			}
 			reset_tmp();
 			break;
 		}
@@ -266,7 +285,6 @@ void GSPlay_Puzzle::HandleTouchEvents(int x, int y, bool bIsPressed)
 	{
 		if (button->HandleTouchEvents(x, y, bIsPressed))
 		{
-			sound.play();
 			break;
 		}
 	}
@@ -373,14 +391,14 @@ void GSPlay_Puzzle::Draw()
 
 // move -> combine -> move again
 
-//void GSPlay::moveLeft() {
+//void GSPlay_Puzzle::moveLeft() {
 //	// no tile on left side
 //	for (int row = 0; row < 4; row++) {
 //		for (int j = 1;j < 4;j++) {
 //			for (int i = j - 1;i >= 0;i--) {
-//				if (map[row][i] == 0) {
-//					map[row][i] = map[row][i + 1];
-//					map[row][i + 1] = 0;
+//				if (g[row][i] == 0 && g[row][i + 1] != -1) {
+//					g[row][i] = g[row][i + 1];
+//					g[row][i + 1] = 0;
 //				}
 //			}
 //		}
@@ -388,9 +406,11 @@ void GSPlay_Puzzle::Draw()
 //	// tile on left side has the same value => combine 2 tile
 //	for (int i = 0; i < 4; i++) {
 //		for (int j = 0;j < 4;j++) {
-//			if (map[i][j] == map[i][j + 1]) {
-//				map[i][j] += map[i][j];
-//				map[i][j + 1] = 0;
+//			if (g[i][j] == g[i][j + 1] && tmp[i][j]==0 && tmp[i][j+1] == 0 && g[i][j]!=-1) {
+//				g[i][j] += g[i][j+1];
+//				g[i][j + 1] = 0;
+//				tmp[i][j] = 1;
+//				tmp[i][j+1] = 1;
 //			}
 //		}
 //	}
@@ -398,23 +418,23 @@ void GSPlay_Puzzle::Draw()
 //	for (int row = 0; row < 4; row++) {
 //		for (int j = 1;j < 4;j++) {
 //			for (int i = j - 1;i >= 0;i--) {
-//				if (map[row][i] == 0) {
-//					map[row][i] = map[row][i + 1];
-//					map[row][i + 1] = 0;
+//				if (g[row][i] == 0 && g[row][i + 1] != -1) {
+//					g[row][i] = g[row][i + 1];
+//					g[row][i + 1] = 0;
 //				}
 //			}
 //		}
 //	}
 //}
 //
-//void GSPlay::moveRight() {
+//void GSPlay_Puzzle::moveRight() {
 //	// no tile on right side
 //	for (int row = 0; row < 4; row++) {
 //		for (int j = 2;j >= 0;j--) {
 //			for (int i = j + 1;i <= 3;i++) {
-//				if (map[row][i] == 0) {
-//					map[row][i] = map[row][i - 1];
-//					map[row][i - 1] = 0;
+//				if (g[row][i] == 0 && g[row][i - 1] != -1) {
+//					g[row][i] = g[row][i - 1];
+//					g[row][i - 1] = 0;
 //				}
 //			}
 //		}
@@ -422,9 +442,11 @@ void GSPlay_Puzzle::Draw()
 //	// tile on right side has the same value => combine 2 tile
 //	for (int i = 0; i < 4; i++) {
 //		for (int j = 2;j >= 0;j--) {
-//			if (map[i][j] == map[i][j + 1]) {
-//				map[i][j + 1] += map[i][j + 1];
-//				map[i][j] = 0;
+//			if (g[i][j] == g[i][j + 1] && tmp[i][j] == 0 && tmp[i][j + 1] == 0 && g[i][j]!=-1) {
+//				g[i][j + 1] += g[i][j];
+//				g[i][j] = 0;
+//				tmp[i][j] = 1;
+//				tmp[i][j + 1] = 1;
 //			}
 //		}
 //	}
@@ -432,24 +454,24 @@ void GSPlay_Puzzle::Draw()
 //	for (int row = 0; row < 4; row++) {
 //		for (int j = 2;j >= 0;j--) {
 //			for (int i = j + 1;i <= 3;i++) {
-//				if (map[row][i] == 0) {
-//					map[row][i] = map[row][i - 1];
-//					map[row][i - 1] = 0;
+//				if (g[row][i] == 0 && g[row][i - 1] != -1) {
+//					g[row][i] = g[row][i - 1];
+//					g[row][i - 1] = 0;
 //				}
 //			}
 //		}
 //	}
 //}
 //
-//void GSPlay::moveUp() {
+//void GSPlay_Puzzle::moveUp() {
 //	// no tile above
 //
 //	for (int col = 0;col < 4;col++) {
 //		for (int i = 1;i < 4;i++) {
 //			for (int j = i - 1;j >= 0;j--) {
-//				if (map[j][col] == 0) {
-//					map[j][col] = map[j + 1][col];
-//					map[j + 1][col] = 0;
+//				if (g[j][col] == 0 && g[j + 1][col]!=-1) {
+//					g[j][col] = g[j + 1][col];
+//					g[j + 1][col] = 0;
 //				}
 //			}
 //		}
@@ -458,10 +480,11 @@ void GSPlay_Puzzle::Draw()
 //	// tile above has the same value => combine 2 tile
 //	for (int j = 0;j < 4;j++) {
 //		for (int i = 1;i < 4;i++) {
-//			if (map[i][j] == map[i - 1][j] && tmp[i][j]==0 && tmp[i-1][j]==0) {
-//				map[i - 1][j] += map[i - 1][j];
-//				map[i][j] = 0;
-//				tmp[i - 1][j] = 1;
+//			if (g[i][j] == g[i - 1][j] && tmp[i][j]==0 && tmp[i-1][j]==0 && g[i][j]!=-1) {
+//				g[i - 1][j] += g[i][j];
+//				g[i][j] = 0;
+//				tmp[i][j] = 1;
+//				tmp[i-1][j] = 1;
 //			}
 //		}
 //	}
@@ -470,23 +493,23 @@ void GSPlay_Puzzle::Draw()
 //	for (int col = 0;col < 4;col++) {
 //		for (int i = 1;i < 4;i++) {
 //			for (int j = i - 1;j >= 0;j--) {
-//				if (map[j][col] == 0) {
-//					map[j][col] = map[j + 1][col];
-//					map[j + 1][col] = 0;
+//				if (g[j][col] == 0 && g[j + 1][col] != -1) {
+//					g[j][col] = g[j + 1][col];
+//					g[j + 1][col] = 0;
 //				}
 //			}
 //		}
 //	}
 //}
 //
-//void GSPlay::moveDown() {
+//void GSPlay_Puzzle::moveDown() {
 //	// no tile beneath
 //	for (int col = 0;col < 4;col++) {
 //		for (int j = 2;j >= 0;j--) {
 //			for (int i = j + 1;i <= 3;i++) {
-//				if (map[i][col] == 0) {
-//					map[i][col] = map[i - 1][col];
-//					map[i - 1][col] = 0;
+//				if (g[i][col] == 0 && g[i - 1][col]!=-1) {
+//					g[i][col] = g[i - 1][col];
+//					g[i - 1][col] = 0;
 //				}
 //			}
 //		}
@@ -494,10 +517,11 @@ void GSPlay_Puzzle::Draw()
 //	// tile beneath has the same value => combine 2 tile
 //	for (int j = 0;j < 4;j++) {
 //		for (int i = 3;i >= 0;i--) {
-//			if (map[i][j] == map[i - 1][j] && tmp[i][j] == 0 && tmp[i - 1][j] == 0) {
-//				map[i][j] += map[i][j];
-//				map[i - 1][j] = 0;
+//			if (g[i][j] == g[i - 1][j] && tmp[i][j] == 0 && tmp[i - 1][j] == 0 && g[i][j]!=-1) {
+//				g[i][j] += g[i - 1][j];
+//				g[i - 1][j] = 0;
 //				tmp[i][j] = 1;
+//				tmp[i - 1][j] = 1;
 //			}
 //		}
 //	}
@@ -506,9 +530,9 @@ void GSPlay_Puzzle::Draw()
 //	for (int col = 0;col < 4;col++) {
 //		for (int j = 2;j >= 0;j--) {
 //			for (int i = j + 1;i <= 3;i++) {
-//				if (map[i][col] == 0) {
-//					map[i][col] = map[i - 1][col];
-//					map[i - 1][col] = 0;
+//				if (g[i][col] == 0 && g[i - 1][col] != -1) {
+//					g[i][col] = g[i - 1][col];
+//					g[i - 1][col] = 0;
 //				}
 //			}
 //		}
@@ -523,6 +547,9 @@ void GSPlay_Puzzle::moveUp() {
 		for (int j = 0;j < 4;j++) {
 			if (!g[j][i]) {
 				for (int k = j + 1;k < 4;k++) {
+					if (g[k][i] == -1) {
+						break;
+					}
 					if (g[k][i] && g[k][i]!=-1) {
 						g[j][i] = g[k][i];
 						g[k][i] = 0;
@@ -537,8 +564,11 @@ void GSPlay_Puzzle::moveUp() {
 void GSPlay_Puzzle::moveDown() {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 3;j >= 0;j--) {
-			if (!g[j][i]) {
+			if (!g[j][i] && g[j][i] != -1) {
 				for (int k = j - 1;k >= 0;k--) {
+					if (g[k][i] == -1) {
+						break;
+					}
 					if (g[k][i] && g[k][i] != -1) {
 						g[j][i] = g[k][i];
 						g[k][i] = 0;
@@ -553,8 +583,11 @@ void GSPlay_Puzzle::moveDown() {
 void GSPlay_Puzzle::moveLeft() {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
-			if (!g[i][j]) {
+			if (!g[i][j] && g[i][j] != -1) {
 				for (int k = j + 1;k < 4;k++) {
+					if (g[i][k] == -1) {
+						break;
+					}
 					if (g[i][k] && g[i][k] != -1) {
 						g[i][j] = g[i][k];
 						g[i][k] = 0;
@@ -569,8 +602,11 @@ void GSPlay_Puzzle::moveLeft() {
 void GSPlay_Puzzle::moveRight() {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 3;j >= 0;j--) {
-			if (!g[i][j]) {
+			if (!g[i][j] && g[i][j] != -1) {
 				for (int k = j - 1;k >= 0;k--) {
+					if (g[i][k] == -1) {
+						break;
+					}
 					if (g[i][k] && g[i][k] != -1) {
 						g[i][j] = g[i][k];
 						g[i][k] = 0;
@@ -698,3 +734,11 @@ bool GSPlay_Puzzle::checkGameOver()
 	return true;
 }
 
+void GSPlay_Puzzle::loadSetting() {
+	std::ifstream file;
+	file.open("Data/Setting.txt");
+	file >> ms >> sfx;
+	file.close();
+	sound.setVolume(sfx);
+	music.setVolume(ms);
+}

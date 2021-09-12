@@ -46,9 +46,6 @@ void GSLeaderboard::Init()
 	text->Set2DPosition(Vector2(5, 200));
 	m_listText.push_back(text);*/
 
-	//sfx
-	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
-	sound.setBuffer(buffer);
 }
 
 void GSLeaderboard::Exit()
@@ -79,7 +76,6 @@ void GSLeaderboard::HandleTouchEvents(int x, int y, bool bIsPressed)
 	{
 		if (button->HandleTouchEvents(x, y, bIsPressed))
 		{
-			sound.play();
 			break;
 		}
 	}

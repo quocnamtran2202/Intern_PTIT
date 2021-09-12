@@ -74,10 +74,6 @@ void GSMode::Init()
 	/*text = std::make_shared< Text>(shader, font, "Developed by Tran Quoc Nam - D17 PTIT", TextColor::BLACK, 1.14, TextAlign::CENTER);
 	text->Set2DPosition(Vector2(5, 200));
 	m_listText.push_back(text);*/
-
-	//sfx
-	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
-	sound.setBuffer(buffer);
 }
 
 void GSMode::Exit()
@@ -108,7 +104,6 @@ void GSMode::HandleTouchEvents(int x, int y, bool bIsPressed)
 	{
 		if (button->HandleTouchEvents(x, y, bIsPressed))
 		{
-			sound.play();
 			break;
 		}
 	}

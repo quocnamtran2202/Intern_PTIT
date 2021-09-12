@@ -257,9 +257,6 @@ void GSPuzzle::Init()
 	text->Set2DPosition(Vector2(5, 200));
 	m_listText.push_back(text);*/
 
-	//sfx
-	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
-	sound.setBuffer(buffer);
 }
 
 void GSPuzzle::Exit()
@@ -288,7 +285,6 @@ void GSPuzzle::HandleTouchEvents(int x, int y, bool bIsPressed)
 {
 	if (m_backButton->HandleTouchEvents(x, y, bIsPressed))
 	{
-		sound.play();
 		return;
 	}
 	for (auto button : m_listButton)

@@ -44,6 +44,8 @@ public:
 	void	copyBoard();
 	bool	checkMove();
 	bool	checkGameOver();
+	void	loadSetting();
+
 
 private:
 	std::shared_ptr<Sprite2D>	m_background;
@@ -61,5 +63,6 @@ private:
 	sf::SoundBuffer buffer;
 	int score;
 	std::string lv;
+	int ms, sfx;
 };
 

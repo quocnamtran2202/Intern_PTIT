@@ -32,22 +32,7 @@ void GSHelp::Init()
 	m_backButton->Set2DPosition(Globals::screenWidth / 10, Globals::screenHeight / 15);
 	m_backButton->SetSize(60, 60);
 	m_backButton->SetOnClick([]() {
-		ifstream file;
-		file.open("Data/GSHelp.txt");
-		int x;
-		file >> x;
-		if (x == 1) {
-			GameStateMachine::GetInstance()->ChangeState(StateType::STATE_PLAY);
-		}
-		if (x == 2) {
-			GameStateMachine::GetInstance()->ChangeState(StateType::STATE_PLAY_SPEED);
-		}
-		if (x == 3) {
-			GameStateMachine::GetInstance()->ChangeState(StateType::STATE_PLAY_PUZZLE);
-		}
-		if (x == 0) {
-			GameStateMachine::GetInstance()->ChangeState(StateType::STATE_MENU);
-		}
+		GameStateMachine::GetInstance()->PopState();
 		});
 
 	// title
@@ -62,9 +47,6 @@ void GSHelp::Init()
 	text->Set2DPosition(Vector2(5, 200));
 	m_listText.push_back(text);*/
 
-	//sfx
-	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
-	sound.setBuffer(buffer);
 }
 
 void GSHelp::Exit()
@@ -93,7 +75,6 @@ void GSHelp::HandleTouchEvents(int x, int y, bool bIsPressed)
 {
 	if (m_backButton->HandleTouchEvents(x, y, bIsPressed))
 	{
-		sound.play();
 		return;
 	}
 }

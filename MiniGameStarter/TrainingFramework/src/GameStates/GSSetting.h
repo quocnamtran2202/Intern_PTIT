@@ -26,8 +26,16 @@ public:
 private:
 	std::shared_ptr<Sprite2D>				m_background;
 	std::list<std::shared_ptr<Text>>		m_listText;
+	std::shared_ptr<Text>					m_textSFX;
+	std::shared_ptr<Text>					m_textMusic;
 	std::list<std::shared_ptr<GameButton>>	m_listButton;
+	std::shared_ptr<GameButton>				m_incMusic;
+	std::shared_ptr<GameButton>				m_decMusic;
+	std::shared_ptr<GameButton>				m_incSFX;
+	std::shared_ptr<GameButton>				m_decSFX;
 	sf::Sound sound;
 	sf::SoundBuffer buffer;
+	int music;
+	int sfx;
 };
 

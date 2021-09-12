@@ -49,10 +49,6 @@ void GSPlay::Init()
 	button->Set2DPosition(Globals::screenWidth - 125, 50);
 	button->SetSize(60, 60);
 	button->SetOnClick([]() {
-		ofstream f;
-		f.open("Data/GSHelp.txt");
-		f << 1;
-		f.close();
 		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_HELP);
 		});
 	m_listButton.push_back(button);
@@ -63,10 +59,6 @@ void GSPlay::Init()
 	button->Set2DPosition(Globals::screenWidth - 200, 50);
 	button->SetSize(60, 60);
 	button->SetOnClick([]() {
-		ofstream f;
-		f.open("Data/GSSetting.txt");
-		f << 1;
-		f.close();
 		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_SETTING);
 		});
 	m_listButton.push_back(button);
@@ -181,12 +173,13 @@ void GSPlay::Init()
 	tile[3][3]->Set2DPosition((float)Globals::screenWidth / 2 + 195, (float)Globals::screenHeight / 2 + 260);
 
 	//sound
+	loadSetting();
+	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
+	sound.setBuffer(buffer);
+
 	music.openFromFile("Sound/ES_Quest for the Skies - Christoffer Moe Ditlevsen.wav");
 	music.play();
 	music.setLoop(true);
-
-	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
-	sound.setBuffer(buffer);
 
 	// set up board
 	for (int i = 0;i < 4;i++) {
@@ -224,13 +217,15 @@ void GSPlay::Exit()
 
 void GSPlay::Pause()
 {
-	music.stop();
+	music.pause();
 	exportBoard();
 	exportScore();
 }
 
 void GSPlay::Resume()
 {
+	loadSetting();
+	music.play();
 }
 
 void GSPlay::HandleEvents()
@@ -302,7 +297,6 @@ void GSPlay::HandleTouchEvents(int x, int y, bool bIsPressed)
 	{
 		if(button->HandleTouchEvents(x, y, bIsPressed))
 		{
-			sound.play();
 			break;
 		}
 	}
@@ -690,6 +684,7 @@ void GSPlay::addTile() {
 	int s = rand() % 100;
 	if (s > 89) g[x][y] = 4;
 	else g[x][y] = 2;
+	sound.play();
 }
 
 bool GSPlay::checkFull() {
@@ -814,4 +809,13 @@ void GSPlay::reset() {
 	}
 	score = 0;
 	initBoard();
+}
+
+void GSPlay::loadSetting() {
+	std::ifstream file;
+	file.open("Data/Setting.txt");
+	file >> ms >> sfx;
+	file.close();
+	sound.setVolume(sfx);
+	music.setVolume(ms);
 }

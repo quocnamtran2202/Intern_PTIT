@@ -52,10 +52,6 @@ void GSMenu::Init()
 	button->Set2DPosition(Globals::screenWidth / 2 + 69, Globals::screenHeight / 1.25);
 	button->SetSize(120, 120);
 	button->SetOnClick([]() {
-		std::ofstream f;
-		f.open("Data/GSSetting.txt");
-		f << 0;
-		f.close();
 		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_SETTING);
 		});
 	m_listButton.push_back(button);
@@ -76,10 +72,6 @@ void GSMenu::Init()
 	button->Set2DPosition(Globals::screenWidth / 2 - 207, Globals::screenHeight / 1.25);
 	button->SetSize(120, 120);
 	button->SetOnClick([]() {
-		std::ofstream f;
-		f.open("Data/GSHelp.txt");
-		f << 0;
-		f.close();
 		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_HELP);
 		});
 	m_listButton.push_back(button);
@@ -100,9 +92,6 @@ void GSMenu::Init()
 	m_textGameName = std::make_shared< Text>(shader, font, "2048", Vector4(1.0f, 0.5f, 0.0f, 1.0f), 3.0f);
 	m_textGameName->Set2DPosition(Vector2(190, 200));
 
-	//sfx
-	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
-	sound.setBuffer(buffer);
 }
 
 void GSMenu::Exit()
@@ -133,7 +122,6 @@ void GSMenu::HandleTouchEvents(int x, int y, bool bIsPressed)
 	{
 		if (button->HandleTouchEvents(x, y, bIsPressed))
 		{
-			sound.play();
 			break;
 		}
 	}
