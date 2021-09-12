@@ -57,7 +57,7 @@ void GSMenu::Init()
 	m_listButton.push_back(button);
 
 	//leaderboard button
-	texture = ResourceManagers::GetInstance()->GetTexture("Menu_score.tga");
+	texture = ResourceManagers::GetInstance()->GetTexture("highscore.tga");
 	button = std::make_shared<GameButton>(model, shader, texture);
 	button->Set2DPosition(Globals::screenWidth / 2 - 69, Globals::screenHeight / 1.25);
 	button->SetSize(120, 120);

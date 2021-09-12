@@ -45,12 +45,14 @@ public:
 	bool	checkMove();
 	bool	checkGameOver();
 	void	loadSetting();
-
+	int		countTile();
 
 private:
 	std::shared_ptr<Sprite2D>	m_background;
 	std::shared_ptr<Text>		m_score;
 	std::shared_ptr<Text>		m_mode;
+	std::shared_ptr<Text>		m_move;
+	std::shared_ptr<Text>		m_gameover;
 	std::list<std::shared_ptr<GameButton>>	m_listButton;
 	std::shared_ptr<Sprite2D>	tile[4][4];
 	//int map[4][4];
@@ -61,7 +63,7 @@ private:
 	sf::Music music;
 	sf::Sound sound;
 	sf::SoundBuffer buffer;
-	int score;
+	int score,move;
 	std::string lv;
 	int ms, sfx;
 };

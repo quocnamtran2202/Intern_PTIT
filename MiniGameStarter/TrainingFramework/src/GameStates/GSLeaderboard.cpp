@@ -1,4 +1,5 @@
 #include "GSLeaderboard.h"
+#include <fstream>;
 
 GSLeaderboard::GSLeaderboard() : GameStateBase(StateType::STATE_LEADERBOARD),
 m_background(nullptr), m_listText(std::list<std::shared_ptr<Text>>{}), m_listButton(std::list<std::shared_ptr<GameButton>>{})
@@ -37,14 +38,29 @@ void GSLeaderboard::Init()
 	// title
 	shader = ResourceManagers::GetInstance()->GetShader("TextShader");
 	std::shared_ptr<Font> font = ResourceManagers::GetInstance()->GetFont("arialbd.ttf");
-	std::shared_ptr<Text> text = std::make_shared< Text>(shader, font, "Leaderboard", TextColor::BLACK, 1.5, TextAlign::CENTER);
-	text->Set2DPosition(Vector2(GLfloat(Globals::screenWidth / 2 - 100), Globals::screenHeight / 12));
+	std::shared_ptr<Text> text = std::make_shared< Text>(shader, font, "High Score", TextColor::BLACK, 1.5, TextAlign::CENTER);
+	text->Set2DPosition(Vector2(GLfloat(Globals::screenWidth / 2 - 80), Globals::screenHeight / 12));
 	m_listText.push_back(text);
 
-	// game title
-	/*text = std::make_shared< Text>(shader, font, "Developed by Tran Quoc Nam - D17 PTIT", TextColor::BLACK, 1.14, TextAlign::CENTER);
-	text->Set2DPosition(Vector2(5, 200));
-	m_listText.push_back(text);*/
+	//classic
+	std::ifstream file;
+	file.open("Data/HighScore.txt");
+	file >> highscore1;
+	file.close();
+	
+	font = ResourceManagers::GetInstance()->GetFont("arialbd.ttf");
+	text = std::make_shared< Text>(shader, font,"Classic  " + std::to_string(highscore1), TextColor::BLACK, 1.5, TextAlign::CENTER);
+	text->Set2DPosition(Vector2(GLfloat(Globals::screenWidth / 2 - 120), Globals::screenHeight / 4));
+	m_listText.push_back(text);
+
+	//speed
+	file.open("Data/HighScore_Speed.txt");
+	file >> highscore2;
+	file.close();
+	font = ResourceManagers::GetInstance()->GetFont("arialbd.ttf");
+	text = std::make_shared< Text>(shader, font, "Speed     " + std::to_string(highscore2), TextColor::BLACK, 1.5, TextAlign::CENTER);
+	text->Set2DPosition(Vector2(GLfloat(Globals::screenWidth / 2 - 120), Globals::screenHeight / 3));
+	m_listText.push_back(text);
 
 }
 

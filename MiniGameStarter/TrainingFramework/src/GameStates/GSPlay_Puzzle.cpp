@@ -158,6 +158,18 @@ void GSPlay_Puzzle::Init()
 	m_mode = std::make_shared< Text>(shader, font, "", TextColor::RED, 1.25);
 	m_mode->Set2DPosition(25, 50);
 
+	// text move left
+	shader = ResourceManagers::GetInstance()->GetShader("TextShader");
+	font = ResourceManagers::GetInstance()->GetFont("arialbd.ttf");
+	m_move = std::make_shared< Text>(shader, font, "", TextColor::RED, 1.1);
+	m_move->Set2DPosition(25, 90);
+
+	// text gameover
+	shader = ResourceManagers::GetInstance()->GetShader("TextShader");
+	font = ResourceManagers::GetInstance()->GetFont("arialbd.ttf");
+	m_gameover = std::make_shared< Text>(shader, font, "", TextColor::RED, 1.25);
+	m_gameover->Set2DPosition(180, 120);
+
 	//sound
 	loadSetting();
 	buffer.loadFromFile("Sound/zapsplat_multimedia_button_click_004_68776.wav");
@@ -179,6 +191,7 @@ void GSPlay_Puzzle::Init()
 			file >> g[i][j];
 		}
 	}
+	file >> move;
 	file.close();
 
 	for (int i = 0;i < 4;i++) {
@@ -229,50 +242,86 @@ void GSPlay_Puzzle::HandleKeyEvents(int key, bool bIsPressed)
 	if (bIsPressed) {
 		switch (key) {
 		case VK_DOWN: {
-			copyBoard();
-			moveDown();
-			sumDown();
-			moveDown();
-			if (checkMove() == true) {
-				sound.play();
+			if (move > 0) {
+				copyBoard();
+				moveDown();
+				sumDown();
+				moveDown();
+				if (checkMove() == true) {
+					sound.play();
+					move--;
+				}
+				if (move == 0 && countTile() > 1) {
+					m_gameover->SetText("GAME OVER");
+				}
+				if (countTile() == 1) {
+					m_gameover->SetText("    YOU WIN");
+				}
+				reset_tmp();
 			}
-			reset_tmp();
 			break;
 		}
 
 		case VK_UP: {
-			copyBoard();
-			moveUp();
-			sumUp();
-			moveUp();
-			if (checkMove() == true) {
-				sound.play();
+			if (move > 0) {
+				copyBoard();
+				moveUp();
+				sumUp();
+				moveUp();
+				if (checkMove() == true) {
+					sound.play();
+					move--;
+				}
+				if (move == 0 && countTile() > 1) {
+					m_gameover->SetText("GAME OVER");
+				}
+				if (countTile() == 1) {
+					m_gameover->SetText("YOU WIN");
+				}
+				reset_tmp();
 			}
-			reset_tmp();
 			break;
 		}
 
 		case VK_LEFT: {
-			copyBoard();
-			moveLeft();
-			sumLeft();
-			moveLeft();
-			if (checkMove() == true) {
-				sound.play();
+			if (move > 0) {
+				copyBoard();
+				moveLeft();
+				sumLeft();
+				moveLeft();
+				if (checkMove() == true) {
+					sound.play();
+					move--;
+				}
+				if (move == 0 && countTile() > 1) {
+					m_gameover->SetText("GAME OVER");
+				}
+				if (countTile() == 1) {
+					m_gameover->SetText("YOU WIN");
+				}
+				reset_tmp();
 			}
-			reset_tmp();
 			break;
 		}
 
 		case VK_RIGHT: {
-			copyBoard();
-			moveRight();
-			sumRight();
-			moveRight();
-			if (checkMove() == true) {
-				sound.play();
+			if (move > 0) {
+				copyBoard();
+				moveRight();
+				sumRight();
+				moveRight();
+				if (checkMove() == true) {
+					sound.play();
+					move--;
+				}
+				if (move == 0 && countTile() > 1) {
+					m_gameover->SetText("GAME OVER");
+				}
+				if (countTile() == 1) {
+					m_gameover->SetText("YOU WIN");
+				}
+				reset_tmp();
 			}
-			reset_tmp();
 			break;
 		}
 		}
@@ -307,18 +356,23 @@ void GSPlay_Puzzle::Update(float deltaTime)
 		}
 	}
 	//m_score->Update(deltaTime);
+	m_move->Update(deltaTime);
+	m_gameover->Update(deltaTime);
 }
 
 void GSPlay_Puzzle::Draw()
 {
 	m_background->Draw();
 
-	/*std::string s = std::to_string(score);
-	m_score->SetText(s);
-	m_score->Draw();*/
 	string mode = "Puzzle - LV" + lv;
 	m_mode->SetText(mode);
 	m_mode->Draw();
+
+	std::string smove = std::to_string(move);
+	m_move->SetText("Moves left: " + smove);
+	m_move->Draw();
+
+	m_gameover->Draw();
 
 	for (auto it : m_listButton)
 	{
@@ -389,158 +443,8 @@ void GSPlay_Puzzle::Draw()
 
 }
 
-// move -> combine -> move again
 
-//void GSPlay_Puzzle::moveLeft() {
-//	// no tile on left side
-//	for (int row = 0; row < 4; row++) {
-//		for (int j = 1;j < 4;j++) {
-//			for (int i = j - 1;i >= 0;i--) {
-//				if (g[row][i] == 0 && g[row][i + 1] != -1) {
-//					g[row][i] = g[row][i + 1];
-//					g[row][i + 1] = 0;
-//				}
-//			}
-//		}
-//	}
-//	// tile on left side has the same value => combine 2 tile
-//	for (int i = 0; i < 4; i++) {
-//		for (int j = 0;j < 4;j++) {
-//			if (g[i][j] == g[i][j + 1] && tmp[i][j]==0 && tmp[i][j+1] == 0 && g[i][j]!=-1) {
-//				g[i][j] += g[i][j+1];
-//				g[i][j + 1] = 0;
-//				tmp[i][j] = 1;
-//				tmp[i][j+1] = 1;
-//			}
-//		}
-//	}
-//	// move again
-//	for (int row = 0; row < 4; row++) {
-//		for (int j = 1;j < 4;j++) {
-//			for (int i = j - 1;i >= 0;i--) {
-//				if (g[row][i] == 0 && g[row][i + 1] != -1) {
-//					g[row][i] = g[row][i + 1];
-//					g[row][i + 1] = 0;
-//				}
-//			}
-//		}
-//	}
-//}
-//
-//void GSPlay_Puzzle::moveRight() {
-//	// no tile on right side
-//	for (int row = 0; row < 4; row++) {
-//		for (int j = 2;j >= 0;j--) {
-//			for (int i = j + 1;i <= 3;i++) {
-//				if (g[row][i] == 0 && g[row][i - 1] != -1) {
-//					g[row][i] = g[row][i - 1];
-//					g[row][i - 1] = 0;
-//				}
-//			}
-//		}
-//	}
-//	// tile on right side has the same value => combine 2 tile
-//	for (int i = 0; i < 4; i++) {
-//		for (int j = 2;j >= 0;j--) {
-//			if (g[i][j] == g[i][j + 1] && tmp[i][j] == 0 && tmp[i][j + 1] == 0 && g[i][j]!=-1) {
-//				g[i][j + 1] += g[i][j];
-//				g[i][j] = 0;
-//				tmp[i][j] = 1;
-//				tmp[i][j + 1] = 1;
-//			}
-//		}
-//	}
-//	// move again
-//	for (int row = 0; row < 4; row++) {
-//		for (int j = 2;j >= 0;j--) {
-//			for (int i = j + 1;i <= 3;i++) {
-//				if (g[row][i] == 0 && g[row][i - 1] != -1) {
-//					g[row][i] = g[row][i - 1];
-//					g[row][i - 1] = 0;
-//				}
-//			}
-//		}
-//	}
-//}
-//
-//void GSPlay_Puzzle::moveUp() {
-//	// no tile above
-//
-//	for (int col = 0;col < 4;col++) {
-//		for (int i = 1;i < 4;i++) {
-//			for (int j = i - 1;j >= 0;j--) {
-//				if (g[j][col] == 0 && g[j + 1][col]!=-1) {
-//					g[j][col] = g[j + 1][col];
-//					g[j + 1][col] = 0;
-//				}
-//			}
-//		}
-//	}
-//
-//	// tile above has the same value => combine 2 tile
-//	for (int j = 0;j < 4;j++) {
-//		for (int i = 1;i < 4;i++) {
-//			if (g[i][j] == g[i - 1][j] && tmp[i][j]==0 && tmp[i-1][j]==0 && g[i][j]!=-1) {
-//				g[i - 1][j] += g[i][j];
-//				g[i][j] = 0;
-//				tmp[i][j] = 1;
-//				tmp[i-1][j] = 1;
-//			}
-//		}
-//	}
-//
-//	// move again
-//	for (int col = 0;col < 4;col++) {
-//		for (int i = 1;i < 4;i++) {
-//			for (int j = i - 1;j >= 0;j--) {
-//				if (g[j][col] == 0 && g[j + 1][col] != -1) {
-//					g[j][col] = g[j + 1][col];
-//					g[j + 1][col] = 0;
-//				}
-//			}
-//		}
-//	}
-//}
-//
-//void GSPlay_Puzzle::moveDown() {
-//	// no tile beneath
-//	for (int col = 0;col < 4;col++) {
-//		for (int j = 2;j >= 0;j--) {
-//			for (int i = j + 1;i <= 3;i++) {
-//				if (g[i][col] == 0 && g[i - 1][col]!=-1) {
-//					g[i][col] = g[i - 1][col];
-//					g[i - 1][col] = 0;
-//				}
-//			}
-//		}
-//	}
-//	// tile beneath has the same value => combine 2 tile
-//	for (int j = 0;j < 4;j++) {
-//		for (int i = 3;i >= 0;i--) {
-//			if (g[i][j] == g[i - 1][j] && tmp[i][j] == 0 && tmp[i - 1][j] == 0 && g[i][j]!=-1) {
-//				g[i][j] += g[i - 1][j];
-//				g[i - 1][j] = 0;
-//				tmp[i][j] = 1;
-//				tmp[i - 1][j] = 1;
-//			}
-//		}
-//	}
-//
-//	//move again
-//	for (int col = 0;col < 4;col++) {
-//		for (int j = 2;j >= 0;j--) {
-//			for (int i = j + 1;i <= 3;i++) {
-//				if (g[i][col] == 0 && g[i - 1][col] != -1) {
-//					g[i][col] = g[i - 1][col];
-//					g[i - 1][col] = 0;
-//				}
-//			}
-//		}
-//	}
-//}
-
-
-// move -> sum -> move
+// move + sum
 
 void GSPlay_Puzzle::moveUp() {
 	for (int i = 0;i < 4;i++) {
@@ -741,4 +645,16 @@ void GSPlay_Puzzle::loadSetting() {
 	file.close();
 	sound.setVolume(sfx);
 	music.setVolume(ms);
+}
+
+int GSPlay_Puzzle::countTile() {
+	int a = 0;
+	for (int i = 0;i < 4;i++) {
+		for (int j = 0;j < 4;j++) {
+			if (g[i][j] != 0 && g[i][j] != -1 ){
+				a++;
+			}
+		}
+	}
+	return a;
 }

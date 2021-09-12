@@ -18,7 +18,7 @@ GSHelp::~GSHelp()
 void GSHelp::Init()
 {
 	auto model = ResourceManagers::GetInstance()->GetModel("Sprite2D.nfg");
-	auto texture = ResourceManagers::GetInstance()->GetTexture("Background.tga");
+	auto texture = ResourceManagers::GetInstance()->GetTexture("help.tga");
 
 	// background
 	auto shader = ResourceManagers::GetInstance()->GetShader("TextureShader");
@@ -41,11 +41,6 @@ void GSHelp::Init()
 	std::shared_ptr<Text> text = std::make_shared< Text>(shader, font, "Help", TextColor::BLACK, 1.5, TextAlign::CENTER);
 	text->Set2DPosition(Vector2(GLfloat(Globals::screenWidth / 2 - 40 ), Globals::screenHeight / 12));
 	m_listText.push_back(text);
-
-	// game title
-	/*text = std::make_shared< Text>(shader, font, "Developed by Tran Quoc Nam - D17 PTIT", TextColor::BLACK, 1.14, TextAlign::CENTER);
-	text->Set2DPosition(Vector2(5, 200));
-	m_listText.push_back(text);*/
 
 }
 

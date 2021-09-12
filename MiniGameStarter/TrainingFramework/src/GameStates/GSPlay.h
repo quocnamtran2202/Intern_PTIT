@@ -39,16 +39,16 @@ public:
 	void	sumDown();
 	void	sumLeft();
 	void	sumRight();
-	bool	checkFull();
+	int		checkFull();
 	void	copyBoard();
 	bool	checkMove();
-	bool	checkGameOver();
+	int		checkOver();
 	void	initBoard();
 	void	exportBoard();
 	bool	checkInit();
 	void	exportScore();
-	void	toGameOver();
 	void	loadSetting();
+	void	highScore();
 
 private:
 	std::shared_ptr<Sprite2D>	m_background;
@@ -65,7 +65,7 @@ private:
 	sf::Sound sound;
 	sf::SoundBuffer buffer;
 	int score;
-	std::string s1;
 	int ms, sfx;
+	int highscore;
 };
 

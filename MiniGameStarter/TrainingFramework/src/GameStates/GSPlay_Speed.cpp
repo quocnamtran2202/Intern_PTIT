@@ -98,6 +98,12 @@ void GSPlay_Speed::Init()
 	m_mode = std::make_shared< Text>(shader, font, "Speed", TextColor::RED, 1.25);
 	m_mode->Set2DPosition(25, 100);
 
+	// text gameover
+	shader = ResourceManagers::GetInstance()->GetShader("TextShader");
+	font = ResourceManagers::GetInstance()->GetFont("arialbd.ttf");
+	m_gameover = std::make_shared< Text>(shader, font, "", TextColor::RED, 1.25);
+	m_gameover->Set2DPosition(180, 120);
+
 	//tile
 	texture = ResourceManagers::GetInstance()->GetTexture("Tile Background.tga");
 	shader = ResourceManagers::GetInstance()->GetShader("TextureShader");
@@ -198,11 +204,23 @@ void GSPlay_Speed::Init()
 		initBoard();
 	}
 
+	if (checkFull()) {
+		if (checkOver()) {
+			//GameStateMachine::GetInstance()->PushState(StateType::STATE_GAME_OVER);
+			m_gameover->SetText("GAME OVER");
+		}
+	}
+
 	//score
 	score = 0;
 	string fileScore = "Data/Score_Speed.txt";
 	file.open(fileScore);
 	file >> score;
+	file.close();
+
+	string fileName = "Data/HighScore_Speed.txt";
+	file.open(fileName);
+	file >> highscore;
 	file.close();
 
 	//time 
@@ -243,8 +261,13 @@ void GSPlay_Speed::HandleKeyEvents(int key, bool bIsPressed)
 			if (checkMove() == true) {
 				addTile();
 			}
+			if (checkFull()) {
+				if (checkOver()) {
+					m_gameover->SetText("GAME OVER");
+					highScore();
+				}
+			}
 			reset_tmp();
-			toGameOver();
 			break;
 		}
 
@@ -255,6 +278,12 @@ void GSPlay_Speed::HandleKeyEvents(int key, bool bIsPressed)
 			moveUp();
 			if (checkMove() == true) {
 				addTile();
+			}
+			if (checkFull()) {
+				if (checkOver()) {
+					m_gameover->SetText("GAME OVER");
+					highScore();
+				}
 			}
 			reset_tmp();
 			break;
@@ -268,6 +297,12 @@ void GSPlay_Speed::HandleKeyEvents(int key, bool bIsPressed)
 			if (checkMove() == true) {
 				addTile();
 			}
+			if (checkFull()) {
+				if (checkOver()) {
+					m_gameover->SetText("GAME OVER");
+					highScore();
+				}
+			}
 			reset_tmp();
 			break;
 		}
@@ -279,6 +314,12 @@ void GSPlay_Speed::HandleKeyEvents(int key, bool bIsPressed)
 			moveRight();
 			if (checkMove() == true) {
 				addTile();
+			}
+			if (checkFull()) {
+				if (checkOver()) {
+					m_gameover->SetText("GAME OVER");
+					highScore();
+				}
 			}
 			reset_tmp();
 			break;
@@ -315,11 +356,12 @@ void GSPlay_Speed::Update(float deltaTime)
 		}
 	}
 	m_score->Update(deltaTime);
+	m_gameover->Update(deltaTime);
 	
 	t++;
-	if (t == 30) {
+	if (t == 32) {
 		addTile();
-		t -= 30;
+		t -= 32;
 	}
 }
 
@@ -332,6 +374,8 @@ void GSPlay_Speed::Draw()
 	m_score->Draw();
 
 	m_mode->Draw();
+
+	m_gameover->Draw();
 
 	for (auto it : m_listButton)
 	{
@@ -399,152 +443,8 @@ void GSPlay_Speed::Draw()
 
 }
 
-// move -> combine -> move again
 
-//void GSPlay::moveLeft() {
-//	// no tile on left side
-//	for (int row = 0; row < 4; row++) {
-//		for (int j = 1;j < 4;j++) {
-//			for (int i = j - 1;i >= 0;i--) {
-//				if (map[row][i] == 0) {
-//					map[row][i] = map[row][i + 1];
-//					map[row][i + 1] = 0;
-//				}
-//			}
-//		}
-//	}
-//	// tile on left side has the same value => combine 2 tile
-//	for (int i = 0; i < 4; i++) {
-//		for (int j = 0;j < 4;j++) {
-//			if (map[i][j] == map[i][j + 1]) {
-//				map[i][j] += map[i][j];
-//				map[i][j + 1] = 0;
-//			}
-//		}
-//	}
-//	// move again
-//	for (int row = 0; row < 4; row++) {
-//		for (int j = 1;j < 4;j++) {
-//			for (int i = j - 1;i >= 0;i--) {
-//				if (map[row][i] == 0) {
-//					map[row][i] = map[row][i + 1];
-//					map[row][i + 1] = 0;
-//				}
-//			}
-//		}
-//	}
-//}
-//
-//void GSPlay::moveRight() {
-//	// no tile on right side
-//	for (int row = 0; row < 4; row++) {
-//		for (int j = 2;j >= 0;j--) {
-//			for (int i = j + 1;i <= 3;i++) {
-//				if (map[row][i] == 0) {
-//					map[row][i] = map[row][i - 1];
-//					map[row][i - 1] = 0;
-//				}
-//			}
-//		}
-//	}
-//	// tile on right side has the same value => combine 2 tile
-//	for (int i = 0; i < 4; i++) {
-//		for (int j = 2;j >= 0;j--) {
-//			if (map[i][j] == map[i][j + 1]) {
-//				map[i][j + 1] += map[i][j + 1];
-//				map[i][j] = 0;
-//			}
-//		}
-//	}
-//	// move again
-//	for (int row = 0; row < 4; row++) {
-//		for (int j = 2;j >= 0;j--) {
-//			for (int i = j + 1;i <= 3;i++) {
-//				if (map[row][i] == 0) {
-//					map[row][i] = map[row][i - 1];
-//					map[row][i - 1] = 0;
-//				}
-//			}
-//		}
-//	}
-//}
-//
-//void GSPlay::moveUp() {
-//	// no tile above
-//
-//	for (int col = 0;col < 4;col++) {
-//		for (int i = 1;i < 4;i++) {
-//			for (int j = i - 1;j >= 0;j--) {
-//				if (map[j][col] == 0) {
-//					map[j][col] = map[j + 1][col];
-//					map[j + 1][col] = 0;
-//				}
-//			}
-//		}
-//	}
-//
-//	// tile above has the same value => combine 2 tile
-//	for (int j = 0;j < 4;j++) {
-//		for (int i = 1;i < 4;i++) {
-//			if (map[i][j] == map[i - 1][j] && tmp[i][j]==0 && tmp[i-1][j]==0) {
-//				map[i - 1][j] += map[i - 1][j];
-//				map[i][j] = 0;
-//				tmp[i - 1][j] = 1;
-//			}
-//		}
-//	}
-//
-//	// move again
-//	for (int col = 0;col < 4;col++) {
-//		for (int i = 1;i < 4;i++) {
-//			for (int j = i - 1;j >= 0;j--) {
-//				if (map[j][col] == 0) {
-//					map[j][col] = map[j + 1][col];
-//					map[j + 1][col] = 0;
-//				}
-//			}
-//		}
-//	}
-//}
-//
-//void GSPlay::moveDown() {
-//	// no tile beneath
-//	for (int col = 0;col < 4;col++) {
-//		for (int j = 2;j >= 0;j--) {
-//			for (int i = j + 1;i <= 3;i++) {
-//				if (map[i][col] == 0) {
-//					map[i][col] = map[i - 1][col];
-//					map[i - 1][col] = 0;
-//				}
-//			}
-//		}
-//	}
-//	// tile beneath has the same value => combine 2 tile
-//	for (int j = 0;j < 4;j++) {
-//		for (int i = 3;i >= 0;i--) {
-//			if (map[i][j] == map[i - 1][j] && tmp[i][j] == 0 && tmp[i - 1][j] == 0) {
-//				map[i][j] += map[i][j];
-//				map[i - 1][j] = 0;
-//				tmp[i][j] = 1;
-//			}
-//		}
-//	}
-//
-//	//move again
-//	for (int col = 0;col < 4;col++) {
-//		for (int j = 2;j >= 0;j--) {
-//			for (int i = j + 1;i <= 3;i++) {
-//				if (map[i][col] == 0) {
-//					map[i][col] = map[i - 1][col];
-//					map[i - 1][col] = 0;
-//				}
-//			}
-//		}
-//	}
-//}
-
-
-// move -> sum -> move
+// move + sum
 
 void GSPlay_Speed::moveUp() {
 	for (int i = 0;i < 4;i++) {
@@ -667,7 +567,7 @@ void GSPlay_Speed::sumRight() {
 }
 
 void GSPlay_Speed::addTile() {
-	if (checkFull() == false) return;
+	if (checkFull() == 1) return;
 
 	int x, y;
 
@@ -682,15 +582,17 @@ void GSPlay_Speed::addTile() {
 	sound.play();
 }
 
-bool GSPlay_Speed::checkFull() {
+int GSPlay_Speed::checkFull() {
+	int full_flag = 1;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			if (g[i][j] == 0) {
-				return true;
+				full_flag = 0;
+				break;
 			}
 		}
 	}
-	return false;
+	return full_flag;
 }
 
 
@@ -713,18 +615,34 @@ bool GSPlay_Speed::checkMove()
 	return false;
 }
 
-bool GSPlay_Speed::checkGameOver()
+int GSPlay_Speed::checkOver()
 {
-	if (checkFull() == false) {
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (g[i][j] == g[i][j + 1] ||
-					g[i][j] == g[i + 1][j]) return false;
+	int i, j, flag = 1;
+	for (i = 0;i < 4;i++) {
+		for (j = 0;j < 3;j++) {
+			if (g[i][j] == g[i][j + 1]) {
+				flag = 0;
+				break;
+			}
+		}
+		if (flag == 0) {
+			break;
+		}
+	}
+	if (flag == 1) {
+		for (i = 0;i < 3;i++) {
+			for (j = 0;j < 4;j++) {
+				if (g[i][j] == g[i + 1][j]) {
+					flag = 0;
+					break;
+				}
+			}
+			if (flag == 0) {
+				break;
 			}
 		}
 	}
-	else if (checkFull() == true) return false;
-	return true;
+	return flag;
 }
 
 void GSPlay_Speed::initBoard()
@@ -789,11 +707,6 @@ void GSPlay_Speed::reset_tmp() {
 	}
 }
 
-void GSPlay_Speed::toGameOver() {
-	if (checkGameOver() == true) {
-		GameStateMachine::GetInstance()->ChangeState(StateType::STATE_SETTING);
-	}
-}
 
 void GSPlay_Speed::loadSetting() {
 	std::ifstream file;
@@ -802,6 +715,16 @@ void GSPlay_Speed::loadSetting() {
 	file.close();
 	sound.setVolume(sfx);
 	music.setVolume(ms);
+}
+
+void GSPlay_Speed::highScore() {
+	string fileName = "Data/HighScore_Speed.txt";
+	ofstream file;
+	file.open(fileName);
+	if (score > highscore) {
+		file << score;
+	}
+	file.close();
 }
 
 

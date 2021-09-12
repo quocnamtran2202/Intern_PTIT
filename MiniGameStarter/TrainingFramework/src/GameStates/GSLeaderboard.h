@@ -29,5 +29,6 @@ private:
 	std::list<std::shared_ptr<GameButton>>	m_listButton;
 	sf::Sound sound;
 	sf::SoundBuffer buffer;
+	int highscore1, highscore2;
 };
 
