@@ -359,9 +359,9 @@ void GSPlay_Speed::Update(float deltaTime)
 	m_gameover->Update(deltaTime);
 	
 	t++;
-	if (t == 32) {
+	if (t == 60) {
 		addTile();
-		t -= 32;
+		t -= 60;
 	}
 }
 
